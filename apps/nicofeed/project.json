@@ -1,0 +1,26 @@
+{
+  "name": "nicofeed",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/nicofeed/src",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "nicofeed:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "nicofeed:build:development"
+        },
+        "production": {
+          "buildTarget": "nicofeed:build:production"
+        }
+      }
+    }
+  }
+}
