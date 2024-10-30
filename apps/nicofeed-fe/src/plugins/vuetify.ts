@@ -17,7 +17,7 @@ import * as directives from 'vuetify/directives'
 // https://vuetifyjs.com/en/introduction/why-vuetify/#feature-guides
 export default createVuetify({
   theme: {
-    defaultTheme: 'dark',
+    defaultTheme: 'light',
   },
   components,
   directives

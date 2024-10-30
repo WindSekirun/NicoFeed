@@ -1,12 +1,13 @@
-import { Controller, Get } from "@nestjs/common";
-import { VideoService } from "./video.service";
+import { Controller, Get, Query, Req } from '@nestjs/common';
+import { VideoService } from './video.service';
 
-@Controller()
+@Controller('videos')
 export class VideoController {
-    constructor(private videoService: VideoService) {}
+  constructor(private videoService: VideoService) {}
 
-    @Get("/video")
-    async getVideoList() {
-        return await this.videoService.getList();
-    }
+  @Get()
+  async getVideos(@Req() req, @Query('page') page: string) {
+    const pageNum = parseInt(page, 10) || 1;
+    return this.videoService.getVideosByUser(req.user.userId, pageNum);
+  }
 }
