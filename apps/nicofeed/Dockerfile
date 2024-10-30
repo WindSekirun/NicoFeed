@@ -12,7 +12,6 @@ ENV NODE_TLS_REJECT_UNAUTHORIZED=0
 RUN npm config set strict-ssl false
 
 COPY apps/nicofeed/prisma ./prisma/
-RUN rm -rf prisma/dev.db
 RUN sed -i '/\/\/ START: REMOVE IN PRODUCTION/,/\/\/ END: REMOVE IN PRODUCTION/d' ./prisma/schema.prisma
 RUN npx prisma generate
 
