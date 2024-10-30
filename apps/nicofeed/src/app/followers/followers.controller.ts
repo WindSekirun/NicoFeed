@@ -3,7 +3,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FollowersService } from './followers.service';
 
 @Controller('followers')
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 export class FollowersController {
   constructor(private followersService: FollowersService) {}
 
@@ -12,9 +12,9 @@ export class FollowersController {
     return this.followersService.getFollowers(req.user.id);
   }
 
-  @Post()
-  addFollower(@Req() req, @Body() followerData) {
-    return this.followersService.addFollower(req.user.id, followerData);
+  @Post("/sync")
+  syncFollower(@Req() req, @Body() body) {
+    return this.followersService.syncFollowers(req.user.id, body);
   }
 
   @Delete(':id')

@@ -3,7 +3,7 @@
     <v-row justify="center" align="center">
       <v-col cols="12" sm="8" md="4">
         <v-card>
-          <v-card-title>Login</v-card-title>
+          <v-card-title>NicoFeed Login</v-card-title>
           <v-card-text>
             <v-form
               ref="loginForm"
@@ -11,20 +11,23 @@
               @submit.prevent="handleLogin"
             >
               <v-text-field
-                label="Username"
                 v-model="username"
+                label="Username"
+                variant="solo"
                 :rules="[rules.required]"
                 required
               />
               <v-text-field
-                label="Password"
                 v-model="password"
+                label="Password"
+                variant="solo"
                 :type="showPassword ? 'text' : 'password'"
                 :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-                @click:append="showPassword = !showPassword"
                 :rules="[rules.required]"
                 required
+                @click:append="showPassword = !showPassword"
               />
+              <div class="mt-5" />
               <v-btn
                 type="submit"
                 color="primary"
@@ -33,7 +36,7 @@
               >
                 Login
               </v-btn>
-              <v-btn text @click="navigateToRegister">Register</v-btn>
+              <v-btn @click="navigateToRegister">Register</v-btn>
             </v-form>
           </v-card-text>
         </v-card>

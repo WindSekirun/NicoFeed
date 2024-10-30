@@ -11,14 +11,16 @@
               @submit.prevent="handleRegister"
             >
               <v-text-field
-                label="Username"
                 v-model="username"
+                label="Username"
+                variant="solo"
                 :rules="[rules.required]"
                 required
               />
               <v-text-field
-                label="Password"
                 v-model="password"
+                label="Password"
+                variant="solo"
                 :type="showPassword ? 'text' : 'password'"
                 :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append="showPassword = !showPassword"
@@ -28,16 +30,23 @@
               <v-text-field
                 label="Confirm Password"
                 v-model="confirmPassword"
+                variant="solo"
                 :type="showPassword ? 'text' : 'password'"
                 :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append="showPassword = !showPassword"
                 :rules="[rules.required, passwordMatch]"
                 required
               />
-              <v-btn type="submit" color="primary" :disabled="!valid" class="me-5">
+              <div class="mt-5" />
+              <v-btn
+                type="submit"
+                color="primary"
+                :disabled="!valid"
+                class="me-5"
+              >
                 Register
               </v-btn>
-              <v-btn text @click="navigateToLogin">Back to Login</v-btn>
+              <v-btn @click="navigateToLogin">Back to Login</v-btn>
             </v-form>
           </v-card-text>
         </v-card>

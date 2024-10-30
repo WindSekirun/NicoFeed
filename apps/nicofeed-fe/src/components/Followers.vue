@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div>
     <h1>Followers</h1>
     <v-card v-for="follower in followers" :key="follower.id">
@@ -24,4 +24,4 @@ async function removeFollower(followerId: number) {
   await api.delete(`/followers/${followerId}`);
   followers.value = followers.value.filter((f) => f.id !== followerId);
 }
-</script>
+</script> -->

@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div>
     <h1>Videos</h1>
     <div
@@ -34,4 +34,4 @@ function openVideo(link: string) {
 }
 
 onMounted(loadMoreVideos);
-</script>
+</script> -->
