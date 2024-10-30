@@ -36,7 +36,7 @@
               >
                 Login
               </v-btn>
-              <v-btn @click="navigateToRegister">Register</v-btn>
+              <!-- <v-btn @click="navigateToRegister">Register</v-btn> -->
             </v-form>
           </v-card-text>
         </v-card>
@@ -62,7 +62,7 @@ const rules = {
 
 const handleLogin = async () => {
   try {
-    const response = await axios.post('/api/auth/login', {
+    const response = await axios.post('/auth/login', {
       username: username.value,
       password: password.value,
     });
@@ -75,7 +75,8 @@ const handleLogin = async () => {
 };
 
 const navigateToRegister = () => {
-  router.push('/register');
+  // router.push('/register');
+ 
 };
 </script>
 

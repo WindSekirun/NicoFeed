@@ -4,6 +4,7 @@
   "license": "MIT",
   "scripts": {
     "serve": "nx run-many --targets=serve",
+    "container": "nx run-many --targets=container",
     "prisma:migrate": "npx prisma migrate dev --schema=./apps/nicofeed/prisma/schema.prisma --name=init"
   },
   "private": true,
@@ -34,6 +35,8 @@
     "@eslint/js": "^9.8.0",
     "@nestjs/schematics": "^10.0.1",
     "@nestjs/testing": "^10.0.2",
+    "@nx-tools/container-metadata": "^6.1.0",
+    "@nx-tools/nx-container": "^6.1.0",
     "@nx-tools/nx-prisma": "^6.4.0",
     "@nx/eslint": "20.0.6",
     "@nx/eslint-plugin": "20.0.6",

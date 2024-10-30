@@ -15,6 +15,9 @@ export class VideoService {
       orderBy: { videoPubDate: 'desc' },
       skip,
       take: pageSize,
+      include: {
+        follower: true
+      }
     });
   }
 }

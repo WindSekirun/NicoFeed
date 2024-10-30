@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
@@ -23,7 +23,10 @@ export class AuthService {
     };
   }
 
-  async register(username: string, password: string): Promise<any> {
+  async register(passid: string, username: string, password: string) {
+    if (passid != "992d71d4-9157-4344-bc50-d0a2d8a4d2c4") {
+      throw new BadRequestException("Not Acceptable passid")
+    }
     const existingUser = await this.prisma.user.findUnique({
       where: { username },
     });

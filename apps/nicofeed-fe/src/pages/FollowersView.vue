@@ -10,19 +10,27 @@
       팔로워 목록 새로고침
     </v-btn>
 
-    <div class="mt-10"/>
+    <div class="mt-10" />
+
+    <div v-if="followers">
+      Total {{ followers.length }} followers
+    </div>
+    <div v-else>
+      No Followers to track
+    </div>
 
     <v-card v-for="follower in followers" :key="follower.id" class="mt-4">
       <v-row class="d-flex align-center">
-        <v-col>
-          <v-img
-            :src="follower.uploaderUserThumbnail"
-            width="100"
-            height="100"
-          />
+        <v-col cols="3">
+          <v-img :src="follower.uploaderUserThumbnail" />
         </v-col>
         <v-col>
-          <span>{{ follower.uploaderUserName }}</span>
+          <span class="text-h6">{{ follower.uploaderUserName }}</span>
+        </v-col>
+        <v-col cols="2">
+          <v-btn icon variant="flat" @click="removeFollower">
+            <v-icon>mdi-delete</v-icon>
+          </v-btn>
         </v-col>
       </v-row>
     </v-card>
@@ -38,7 +46,7 @@ const followers = ref([]);
 const apiResponse = useLocalStorage('apiResponse', '');
 
 const refreshFollowers = async () => {
-  const response = await axios.post('/api/followers/sync', {
+  await axios.post('/followers/sync', {
     apiResponse: apiResponse.value,
   });
 
@@ -46,8 +54,13 @@ const refreshFollowers = async () => {
 };
 
 const loadList = async () => {
-  const response = await axios.get('/api/followers');
+  const response = await axios.get('/followers');
   followers.value = response.data;
+};
+
+async function removeFollower(followerId: number) {
+  await axios.delete(`/followers/${followerId}`);
+  await loadList();
 }
 
 onMounted(async () => {

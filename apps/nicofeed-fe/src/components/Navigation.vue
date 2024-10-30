@@ -20,11 +20,6 @@
         <v-icon>mdi-video</v-icon>
         <span>영상</span>
       </v-btn>
-
-      <v-btn value="settings" :to="{ name: 'Settings' }">
-        <v-icon>mdi-cog</v-icon>
-        <span>설정</span>
-      </v-btn>
     </v-bottom-navigation>
   </v-container>
 </template>

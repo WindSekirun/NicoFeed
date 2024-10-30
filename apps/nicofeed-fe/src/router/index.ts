@@ -4,7 +4,6 @@ import HomeView from '../pages/HomeView.vue';
 import LoginView from '../pages/LoginView.vue';
 import RegisterView from '../pages/RegisterView.vue';
 import FollowersView from '../pages/FollowersView.vue';
-import SettingsView from '../pages/SettingsView.vue';
 
 const routes = [
   {
@@ -23,15 +22,6 @@ const routes = [
     meta: {
       requiresAuth: true,
       displayName: '팔로워 목록',
-    },
-  },
-  {
-    path: '/settings',
-    component: SettingsView,
-    name: "Settings",
-    meta: {
-      requiresAuth: true,
-      displayName: '설정',
     },
   },
   { path: '/login', component: LoginView },

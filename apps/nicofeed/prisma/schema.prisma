@@ -16,12 +16,13 @@ model User {
 }
 
 model Follower {
-  id                    Int    @id @default(autoincrement())
+  id                    Int     @id @default(autoincrement())
   userid                Int
   uploaderUserName      String
-  uploaderUserId        String
+  uploaderUserId        String @unique
   uploaderUserThumbnail String
-  user                  User   @relation(fields: [userid], references: [id])
+  user                  User    @relation(fields: [userid], references: [id])
+  Video                 Video[]
 }
 
 model Video {
@@ -31,6 +32,8 @@ model Video {
   videoLink       String
   videoPubDate    DateTime
   videoThumbnail  String
+  uploaderUserId  String
   requestDateTime DateTime @default(now())
   user            User     @relation(fields: [userid], references: [id])
+  follower        Follower @relation(fields: [uploaderUserId], references: [uploaderUserId])
 }

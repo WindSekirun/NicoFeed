@@ -10,6 +10,13 @@
               v-model="valid"
               @submit.prevent="handleRegister"
             >
+            <v-text-field
+                v-model="passid"
+                label="Passid"
+                variant="solo"
+                :rules="[rules.required]"
+                required
+              />
               <v-text-field
                 v-model="username"
                 label="Username"
@@ -62,6 +69,7 @@ import axios from '../api/api';
 
 const router = useRouter();
 const valid = ref(false);
+const passid = ref('');
 const username = ref('');
 const password = ref('');
 const confirmPassword = ref('');
@@ -82,7 +90,8 @@ const handleRegister = async () => {
   }
 
   try {
-    await axios.post('/api/auth/register', {
+    await axios.post('/auth/register', {
+      passid: passid.value,
       username: username.value,
       password: password.value,
     });
