@@ -17,3 +17,18 @@ services:
       - "4205:3000" 
     restart: always
     container_name: nicofeed-fe
+
+  db:
+    image: postgres:17
+    container_name: nicofeed_db
+    environment:
+      POSTGRES_USER: nicofeed
+      POSTGRES_PASSWORD: nicofeed
+      POSTGRES_DB: nicofeed
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
