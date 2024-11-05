@@ -5,7 +5,7 @@
       <div v-if="shouldDisplayDateHeader(index)" class="font-weight-bold text-h6 mt-5">
         {{ formatDate(video.videoPubDate) }}
       </div>
-      <v-card @click="openVideo(video.videoLink)" class="mt-4">
+      <v-card @click="() => openVideo(video.videoLink)" class="mt-4">
         <v-row class="d-flex align-center">
           <v-col cols="3">
             <v-img :src="video.videoThumbnail" class="pa-5 ms-2" />
