@@ -9,6 +9,12 @@ import Components from 'unplugin-vue-components/vite';
 export default defineConfig({
   root: __dirname,
   cacheDir: '../../node_modules/.vite/apps/nicofeed-fe',
+  define: {
+    'process.env': {
+      VITE_APP_COMMIT_HASH: process.env.VITE_APP_COMMIT_HASH,
+      VITE_APP_COMMIT_DATE: process.env.VITE_APP_COMMIT_DATE,
+    }
+  },
   server: {
     port: 4200,
     host: 'localhost',

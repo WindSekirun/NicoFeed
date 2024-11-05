@@ -1,16 +1,20 @@
 <template>
   <v-container fluid>
     <v-app-bar :elevation="2">
-      <v-app-bar-title>NicoFeed - {{ router.currentRoute.value.meta.displayName }}</v-app-bar-title>
+      <v-app-bar-title>
+        <p class="text-body-1 pa-0">{{ router.currentRoute.value.meta.displayName }}</p>
+        <p class="text-caption pa-0">NicoFeed - {{ version }}</p>
+      </v-app-bar-title>
 
       <v-btn icon @click="toggleTheme">
-        <v-icon>{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
+        <v-icon>{{
+          isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'
+        }}</v-icon>
       </v-btn>
 
       <v-btn icon @click="logout">
         <v-icon>mdi-logout</v-icon>
       </v-btn>
-
     </v-app-bar>
     <v-main class="main-content">
       <slot />
@@ -37,7 +41,7 @@
 
 <script setup lang="ts">
 import { useLocalStorage } from '@vueuse/core';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useTheme } from 'vuetify/lib/framework.mjs';
 
@@ -60,15 +64,21 @@ const toggleTheme = () => {
 const logout = () => {
   localStorage.removeItem('jwt_token');
   router.push('/login');
-}
+};
+
+const version = computed(() => {
+  const commitHash = import.meta.env.VITE_APP_COMMIT_HASH;
+  const commitDate = import.meta.env.VITE_APP_COMMIT_DATE;
+  return `${commitHash}(${commitDate})`;
+});
 
 onMounted(() => {
   theme.global.name.value = isDark.value ? 'dark' : 'light';
-})
+});
 </script>
 
 <style scoped>
 .main-content {
-  padding-top: 0 !important;   /* 상단 패딩 제거 */
+  padding-top: 0 !important; /* 상단 패딩 제거 */
 }
 </style>
