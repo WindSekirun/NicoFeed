@@ -63,11 +63,18 @@ async function loadMoreVideos() {
 }
 
 function openVideo(link: string) {
-  const path = getLastPathWithoutQuery(link)
+  const smId = getLastPathWithoutQuery(link);
   const isAndroid = /Android/i.test(navigator.userAgent);
   if (isAndroid) {
-    const intentUrl = `nico://watch/${path}`;
+    const intentUrl = `nicofeed://${smId}`;
     window.open(intentUrl, '_blank');
+
+     setTimeout(() => {
+      if (document.visibilityState === 'visible') {
+        alert("컴패니언 앱이 설치되어 있지 않습니다.");
+        window.open('https://github.com/WindSekirun/NicoFeed', '_blank');
+      }
+    }, 1500);
   } else {
     window.open(link, '_blank');
   }
