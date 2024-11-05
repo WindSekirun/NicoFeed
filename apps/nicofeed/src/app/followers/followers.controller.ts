@@ -16,8 +16,8 @@ import { FollowersService } from './followers.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Multer } from 'multer';
 import * as puppeteer from 'puppeteer';
-import * as fs from 'fs';
 import * as readline from 'readline';
+import { Readable } from 'stream';
 
 interface PuppeteerCookieParam extends puppeteer.Cookie {
   name: string;
@@ -58,22 +58,16 @@ export class FollowersController {
       throw new BadRequestException('No file uploaded');
     }
 
-    const cookiesFilePath = `./uploads/${file.filename}`;
-    fs.writeFileSync(cookiesFilePath, file.buffer);
-    const cookies = await this.parseCookies(cookiesFilePath);
+    const cookies = await this.parseCookies(file.buffer);
     const data = await this.fetchDataWithCookies(cookies);
-
-    fs.unlinkSync(cookiesFilePath);
     return { data };
   }
 
-  private async parseCookies(
-    filePath: string
-  ): Promise<PuppeteerCookieParam[]> {
-    const cookies: PuppeteerCookieParam[] = [];
-    const fileStream = fs.createReadStream(filePath);
+  private async parseCookies(buffer: Buffer) {
+    const cookies = [];
+    const stream = Readable.from(buffer.toString());
     const rl = readline.createInterface({
-      input: fileStream,
+      input: stream,
       crlfDelay: Infinity,
     });
 
