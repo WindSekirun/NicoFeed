@@ -72,7 +72,7 @@ function openVideo(link: string) {
      setTimeout(() => {
       if (document.visibilityState === 'visible') {
         alert("컴패니언 앱이 설치되어 있지 않습니다.");
-        window.open('https://github.com/WindSekirun/NicoFeed', '_blank');
+        window.open('https://github.com/WindSekirun/NicoFeed/raw/refs/heads/main/NicoFeedCompanion/app-debug.apk', '_blank');
       }
     }, 1500);
   } else {
