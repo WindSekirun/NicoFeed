@@ -5,6 +5,7 @@ import { FollowersModule } from './followers/followers.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaService } from './prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
   imports: [
@@ -12,6 +13,9 @@ import { AuthModule } from './auth/auth.module';
     FollowersModule,
     AuthModule,
     ScheduleModule.forRoot(),
+    MulterModule.register({
+      dest: './uploads', 
+    }),
   ],
   controllers: [],
   providers: [RssService, PrismaService],

@@ -65,6 +65,7 @@ async function loadMoreVideos() {
 function openVideo(link: string) {
   const smId = getLastPathWithoutQuery(link);
   const isAndroid = /Android/i.test(navigator.userAgent);
+  const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   if (isAndroid) {
     const intentUrl = `nicofeed://${smId}`;
     window.open(intentUrl, '_blank');
@@ -75,7 +76,10 @@ function openVideo(link: string) {
         window.open('https://github.com/WindSekirun/NicoFeed/raw/refs/heads/main/NicoFeedCompanion/app-debug.apk', '_blank');
       }
     }, 1500);
-  } else {
+  } else if (isiOS) {
+    const intentUrl = `nico://watch/${smId}`;
+    window.open(intentUrl, '_blank');
+  }  else {
     window.open(link, '_blank');
   }
 }
