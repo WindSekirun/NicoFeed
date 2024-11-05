@@ -56,5 +56,10 @@ const toggleTheme = () => {
 onMounted(() => {
   theme.global.name.value = isDark.value ? 'dark' : 'light';
 })
-
 </script>
+
+<style scoped>
+.main-content {
+  padding-top: 0 !important;   /* 상단 패딩 제거 */
+}
+</style>
