@@ -7,6 +7,10 @@
         <v-icon>{{ isDark ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
       </v-btn>
 
+      <v-btn icon @click="logout">
+        <v-icon>mdi-logout</v-icon>
+      </v-btn>
+
     </v-app-bar>
     <v-main class="main-content">
       <slot />
@@ -52,6 +56,11 @@ const toggleTheme = () => {
   isDark.value = !isDark.value;
   theme.global.name.value = isDark.value ? 'dark' : 'light';
 };
+
+const logout = () => {
+  localStorage.removeItem('jwt_token');
+  router.push('/login');
+}
 
 onMounted(() => {
   theme.global.name.value = isDark.value ? 'dark' : 'light';
