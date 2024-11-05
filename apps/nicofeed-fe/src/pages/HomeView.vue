@@ -34,6 +34,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import 'dayjs/locale/ko';
+import { getLastPathWithoutQuery } from '../utils/url';
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
@@ -62,13 +63,10 @@ async function loadMoreVideos() {
 }
 
 function openVideo(link: string) {
+  const path = getLastPathWithoutQuery(link)
   const isAndroid = /Android/i.test(navigator.userAgent);
   if (isAndroid) {
-    const packageName = 'jp.nicovideo.android';
-    const intentUrl = `intent://${link.replace(
-      'https://',
-      ''
-    )}#Intent;package=${packageName};scheme=https;end;`;
+    const intentUrl = `nico://watch/${path}`;
     window.open(intentUrl, '_blank');
   } else {
     window.open(link, '_blank');
