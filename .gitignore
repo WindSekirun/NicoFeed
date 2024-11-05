@@ -45,3 +45,5 @@ Thumbs.db
 
 *.db
 build.sh
+
+local/up.sh

@@ -1,52 +1,98 @@
 <template>
   <Navigation>
-    <v-card
-      v-for="video in videos"
-      :key="video.id"
-      @click="openVideo(video.videoLink)"
-      class="mt-4"
-    >
-      <v-row class="d-flex align-center">
-        <v-col cols="3">
-          <v-img :src="video.videoThumbnail"></v-img>
-        </v-col>
-        <v-col>
-          <span class="text-body-1">{{ video.videoTitle }}</span>
-          <br />
-          <span class="text-caption">{{ convertToUTC9(video.videoPubDate) }}</span>
-        </v-col>
-      </v-row>
-    </v-card>
-    <v-btn v-if="hasMore" block @click="loadMoreVideos" class="mt-5">Load More</v-btn>
+    <div v-for="(video, index) in videos" :key="video.id" class="video-item">
+      <!-- 날짜 헤더 표시 -->
+      <div v-if="shouldDisplayDateHeader(index)" class="font-weight-bold text-h6 mt-5">
+        {{ formatDate(video.videoPubDate) }}
+      </div>
+      <v-card @click="openVideo(video.videoLink)" class="mt-4">
+        <v-row class="d-flex align-center">
+          <v-col cols="3">
+            <v-img :src="video.videoThumbnail" class="pa-5 ms-2" />
+          </v-col>
+          <v-col class="me-2 mt-2 mb-2">
+            <span class="text-body-1">{{ video.videoTitle }}</span>
+            <br />
+            <span class="text-body-2">{{ video.follower.uploaderUserName }}</span>
+            <br />
+            <p class="text-caption text-right">
+              {{ formatRelativeTime(video.videoPubDate) }}
+            </p>
+          </v-col>
+        </v-row>
+      </v-card>
+    </div>
+    <div v-if="hasMore" v-intersect="loadMoreVideos" class="infinite-scroll-trigger" />
   </Navigation>
 </template>
 
 <script setup lang="ts">
 import axios from '../api/api';
 import { onMounted, ref } from 'vue';
-import { convertToUTC9 } from '../utils/date'
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import 'dayjs/locale/ko';
+
+dayjs.extend(relativeTime);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.locale('ko');
 
 const videos = ref<any[]>([]);
 const hasMore = ref(true);
+const isLoading = ref(false);
 let page = 1;
 
 async function loadMoreVideos() {
-  const response = await axios.get(`/videos?page=${page}`);
-  if (response.data.length < 10) hasMore.value = false;
-  videos.value.push(...response.data);
-  page++;
+  if (isLoading.value || !hasMore.value) return;
+  isLoading.value = true;
+
+  try {
+    const response = await axios.get(`/videos?page=${page}`);
+    if (response.data.length < 10) hasMore.value = false;
+    videos.value.push(...response.data);
+    page++;
+  } finally {
+    setTimeout(() => {
+      isLoading.value = false;
+    }, 250)
+  }
 }
 
 function openVideo(link: string) {
   const isAndroid = /Android/i.test(navigator.userAgent);
   if (isAndroid) {
     const packageName = 'jp.nicovideo.android';
-    const intentUrl = `intent://${link.replace('https://', '')}#Intent;package=${packageName};scheme=https;end;`;
-    window.location.href = intentUrl;
+    const intentUrl = `intent://${link.replace(
+      'https://',
+      ''
+    )}#Intent;package=${packageName};scheme=https;end;`;
+    window.open(intentUrl, '_blank');
   } else {
     window.open(link, '_blank');
   }
 }
 
-onMounted(loadMoreVideos);
+function formatDate(date: string): string {
+  return dayjs(date).format('YYYY-MM-DD');
+}
+
+function formatRelativeTime(date: string): string {
+  return dayjs(date).tz("Asia/Tokyo").fromNow();
+}
+
+function shouldDisplayDateHeader(index: number): boolean {
+  if (index === 0) return true;
+  const currentVideoDate = dayjs(videos.value[index].videoPubDate).format('YYYY-MM-DD');
+  const previousVideoDate = dayjs(videos.value[index - 1].videoPubDate).format('YYYY-MM-DD');
+  return currentVideoDate !== previousVideoDate;
+}
 </script>
+
+<style scoped>
+.infinite-scroll-trigger {
+  height: 1px;
+}
+</style>

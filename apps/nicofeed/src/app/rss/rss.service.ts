@@ -12,7 +12,7 @@ export class RssService implements OnModuleInit {
   constructor(private prisma: PrismaService) {}
 
   async onModuleInit() {
-    this.fetchVideos()
+    // this.fetchVideos()
   }
 
   @Cron('*/10 * * * *')
