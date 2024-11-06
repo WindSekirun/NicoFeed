@@ -4,14 +4,11 @@ import {
   Post,
   Delete,
   Param,
-  Body,
   UseGuards,
   Req,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
-  ExecutionContext,
-  ArgumentsHost,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FollowersService } from './followers.service';
