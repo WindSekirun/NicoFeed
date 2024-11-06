@@ -6,9 +6,10 @@ services:
       dockerfile: ./apps/nicofeed/Dockerfile
     ports:
       - "3005:3000"
-    environments:
-      - ALLOW_USER_REGISTRATION=true
-      - USER_REGISTRATION_PASSID=992d71d4-9157-4344-bc50-d0a2d8a4d2c4
+    environment:
+      DATABASE_URL: ""
+      ALLOW_USER_REGISTRATION: "true"
+      USER_REGISTRATION_PASSID: ""
     restart: always
     container_name: nicofeed
 
