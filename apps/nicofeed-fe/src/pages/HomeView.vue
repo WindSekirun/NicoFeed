@@ -182,7 +182,10 @@ const getUploaderThumbnail = (item: Follower) => {
 };
 
 onMounted(async () => {
-  followers.value = [noneFollower, ...(await axios.get('/followers/recent')).data];
+  const recent = (await axios.get('/followers/recent')).data;
+  if (recent.length != 0) {
+    followers.value = [noneFollower, ...recent];
+  }
 });
 </script>
 
