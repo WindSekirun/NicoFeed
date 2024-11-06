@@ -15,9 +15,27 @@ export class FollowersService {
     });
   }
 
+  async getRecentUploadedFollowers(userId: number): Promise<Follower[]> {
+    const followers = await this.prisma.follower.findMany({
+      where: { userid: userId },
+      include: {
+        Video: {
+          orderBy: { videoPubDate: 'desc' },
+          take: 1,
+        },
+      },
+    });
+
+    return followers.sort((a, b) => {
+      const aDate = a.Video[0]?.videoPubDate || new Date(0);
+      const bDate = b.Video[0]?.videoPubDate || new Date(0);
+      return bDate.getTime() - aDate.getTime();
+    });
+  }
+
   async syncFollowers(
     userId: number,
-    data: { userId: string; nickname: string; iconUrl: string }[]
+    data: { userId: string; nickname: string; }[]
   ) {
     const target = data
       .filter((element) => element.userId)
@@ -25,7 +43,6 @@ export class FollowersService {
         userid: userId,
         uploaderUserId: element.userId.toString(),
         uploaderUserName: element.nickname,
-        uploaderUserThumbnail: element.iconUrl,
       }));
 
     const existingFollowers = await this.prisma.follower.findMany({

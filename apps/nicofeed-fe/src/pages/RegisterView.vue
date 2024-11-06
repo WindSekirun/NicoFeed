@@ -63,9 +63,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from '../api/api';
+import { useTheme } from 'vuetify/lib/framework.mjs';
+import { useLocalStorage } from '@vueuse/core';
 
 const router = useRouter();
 const valid = ref(false);
@@ -74,6 +76,8 @@ const username = ref('');
 const password = ref('');
 const confirmPassword = ref('');
 const showPassword = ref(false);
+const theme = useTheme();
+const isDark = useLocalStorage('theme', theme.global.name.value === 'dark');
 
 const rules = {
   required: (value: string) => !!value || 'Required.',
@@ -105,6 +109,10 @@ const handleRegister = async () => {
 const navigateToLogin = () => {
   router.push('/login');
 };
+
+onMounted(() => {
+  theme.global.name.value = isDark.value ? 'dark' : 'light';
+});
 </script>
 
 <style scoped>

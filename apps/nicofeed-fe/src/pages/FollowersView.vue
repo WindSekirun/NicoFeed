@@ -5,7 +5,7 @@
       <v-card-text>
         niconico 의 cookie.txt 파일을 업로드하여 팔로워 목록을 찾아옵니다. 약
         1분 소요됩니다.
-        <div class="mt-1"></div>
+        <div class="mt-4"></div>
         <input type="file" @change="onFileChange" accept=".txt" />
       </v-card-text>
       <v-card-actions>
@@ -31,7 +31,7 @@
     <v-card v-for="follower in followers" :key="follower.id" class="mt-4">
       <v-row class="d-flex align-center">
         <v-col cols="3">
-          <v-img :src="follower.uploaderUserThumbnail" />
+          <v-img :src="getUploaderThumbnail(follower)" />
         </v-col>
         <v-col>
           <p class="text-caption">#{{ follower.uploaderUserId }}</p>
@@ -48,11 +48,11 @@
 </template>
 
 <script setup lang="ts">
-import { useLocalStorage } from '@vueuse/core';
 import axios from '../api/api';
 import { onMounted, ref } from 'vue';
+import { Follower } from '../model/Followers';
 
-const followers = ref([]);
+const followers = ref<Follower[]>([]);
 const file = ref<File | null>(null);
 const loading = ref(false);
 
@@ -62,6 +62,11 @@ function onFileChange(event: Event) {
     file.value = target.files[0];
   }
 }
+
+const getUploaderThumbnail = (item: Follower) => {
+  const sliced = item.uploaderUserId.slice(0, -4);
+  return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${sliced}/${item.uploaderUserId}.jpg`;
+};
 
 const clickChrome = async () => {
   window.open(

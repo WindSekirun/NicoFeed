@@ -1,14 +1,48 @@
 <template>
   <Navigation>
-    <div v-for="(video, index) in videos" :key="video.id" class="video-item">
-      <!-- 날짜 헤더 표시 -->
-      <div v-if="shouldDisplayDateHeader(index)" class="font-weight-bold text-h6 mt-5">
+    <v-slide-group show-arrows class="ms-n6 me-n6 mt-2">
+      <v-slide-item v-for="follower in followers" :key="follower.id">
+        <v-card
+          class="pa-2"
+          max-width="60"
+          elevation="0"
+          align="center"
+          flat
+          :color="selectedFollower == follower ? `` : `transparent`"
+          @click="changeUser(follower)"
+        >
+          <v-avatar size="48" v-if="follower.id != noneFollower.id">
+            <v-img :src="getUploaderThumbnail(follower)" alt="User Thumbnail" />
+          </v-avatar>
+
+          <v-avatar size="48" v-if="follower.id == noneFollower.id">
+            <v-icon>mdi-selection-ellipse-remove</v-icon>
+          </v-avatar>
+        </v-card>
+      </v-slide-item>
+    </v-slide-group>
+
+    <div
+      v-for="(video, index) in videos"
+      :key="video.id"
+      class="video-item"
+    >
+      <div
+        v-if="shouldDisplayDateHeader(index)"
+        class="font-weight-bold text-h6 mt-5"
+      >
         {{ formatDate(video.videoPubDate) }}
       </div>
       <v-card @click="() => openVideo(video.videoLink)" class="mt-4">
         <v-row class="d-flex align-center">
           <v-col cols="3">
-            <v-img :src="`https://nicovideo.cdn.nimg.jp/thumbnails/` + video.videoThumbnail" class="pa-5 ms-2" />
+            <v-img
+              :src="
+                `https://nicovideo.cdn.nimg.jp/thumbnails/` +
+                video.videoThumbnail
+              "
+              class="pa-5 ms-2"
+            />
           </v-col>
           <v-col class="mt-2 mb-2" cols="9">
             <p class="text-body-1 video-title me-2">{{ video.videoTitle }}</p>
@@ -20,7 +54,15 @@
         </v-row>
       </v-card>
     </div>
-    <div v-if="hasMore" v-intersect="loadMoreVideos" class="infinite-scroll-trigger" />
+    <div
+      v-if="hasMore"
+      v-intersect="loadMoreVideos"
+      class="infinite-scroll-trigger"
+    />
+    
+    <div v-if="videos.length == 0" class="d-flex align-center justify-center">
+      <span class="text-body-1">팔로워 목록을 통해 팔로워를 추가해주세요.</span>
+    </div>
   </Navigation>
 </template>
 
@@ -32,70 +74,116 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import 'dayjs/locale/ko';
-import { getLastPathWithoutQuery } from '../utils/url';
+import { Follower } from '../model/Followers';
+import { Video } from '../model/Video';
 
 dayjs.extend(relativeTime);
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.locale('ko');
 
-const videos = ref<any[]>([]);
+const videos = ref<Video[]>([]);
 const hasMore = ref(true);
 const isLoading = ref(false);
+const followers = ref<Follower[]>([]);
+const selectedFollower = ref<Follower | undefined>(undefined);
 let page = 1;
 
-async function loadMoreVideos() {
+const noneFollower: Follower = {
+  id: -999,
+  uploaderUserName: '',
+  uploaderUserId: '',
+  userid: -999,
+  initialSync: false,
+}
+
+const changeUser = async (follower: Follower) => {
+  if (selectedFollower.value?.id == follower.id || follower.id == noneFollower.id) {
+    selectedFollower.value = undefined;
+  } else {
+    selectedFollower.value = follower;
+  }
+  await loadMoreVideos(true);
+};
+
+const loadMoreVideos = async (clear: boolean = false) => {
+  if (clear) {
+    page = 1;
+    hasMore.value = true;
+    videos.value = [];
+  }
+
   if (isLoading.value || !hasMore.value) return;
   isLoading.value = true;
 
+  const uploaderUserId = selectedFollower.value
+    ? `&uploader_user_id=${selectedFollower.value.uploaderUserId}`
+    : '';
+
   try {
-    const response = await axios.get(`/videos?page=${page}`);
+    const response = await axios.get(`/videos?page=${page}${uploaderUserId}`);
     if (response.data.length < 10) hasMore.value = false;
     videos.value.push(...response.data);
     page++;
   } finally {
     setTimeout(() => {
       isLoading.value = false;
-    }, 250)
+    }, 250);
   }
-}
+};
 
-function openVideo(smId: string) {
-  const link = `https://www.nicovideo.jp/watch/${smId}`
+const openVideo = async (smId: string) => {
+  const link = `https://www.nicovideo.jp/watch/${smId}`;
   const isAndroid = /Android/i.test(navigator.userAgent);
   const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   if (isAndroid) {
     const intentUrl = `nicofeed://${smId}`;
     window.open(intentUrl, '_blank');
 
-     setTimeout(() => {
+    setTimeout(() => {
       if (document.visibilityState === 'visible') {
-        alert("컴패니언 앱이 설치되어 있지 않습니다.");
-        window.open('https://github.com/WindSekirun/NicoFeed/raw/refs/heads/main/NicoFeedCompanion/app-debug.apk', '_blank');
+        alert('컴패니언 앱이 설치되어 있지 않습니다.');
+        window.open(
+          'https://github.com/WindSekirun/NicoFeed/raw/refs/heads/main/NicoFeedCompanion/app-debug.apk',
+          '_blank'
+        );
       }
     }, 1500);
   } else if (isiOS) {
     const intentUrl = `nico://watch/${smId}`;
     window.open(intentUrl, '_blank');
-  }  else {
+  } else {
     window.open(link, '_blank');
   }
-}
+};
 
-function formatDate(date: string): string {
+const formatDate = (date: string) => {
   return dayjs(date).format('YYYY-MM-DD');
-}
+};
 
-function formatRelativeTime(date: string): string {
-  return dayjs(date).tz("Asia/Tokyo").fromNow();
-}
+const formatRelativeTime = (date: string) => {
+  return dayjs(date).tz('Asia/Tokyo').fromNow();
+};
 
-function shouldDisplayDateHeader(index: number): boolean {
+const shouldDisplayDateHeader = (index: number) => {
   if (index === 0) return true;
-  const currentVideoDate = dayjs(videos.value[index].videoPubDate).format('YYYY-MM-DD');
-  const previousVideoDate = dayjs(videos.value[index - 1].videoPubDate).format('YYYY-MM-DD');
+  const currentVideoDate = dayjs(videos.value[index].videoPubDate).format(
+    'YYYY-MM-DD'
+  );
+  const previousVideoDate = dayjs(videos.value[index - 1].videoPubDate).format(
+    'YYYY-MM-DD'
+  );
   return currentVideoDate !== previousVideoDate;
-}
+};
+
+const getUploaderThumbnail = (item: Follower) => {
+  const sliced = item.uploaderUserId.slice(0, -4);
+  return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${sliced}/${item.uploaderUserId}.jpg`;
+};
+
+onMounted(async () => {
+  followers.value = [noneFollower, ...(await axios.get('/followers/recent')).data];
+});
 </script>
 
 <style scoped>

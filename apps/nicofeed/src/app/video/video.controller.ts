@@ -8,8 +8,8 @@ export class VideoController {
   constructor(private videoService: VideoService) {}
 
   @Get()
-  async getVideos(@Req() req, @Query('page') page: string) {
+  async getVideos(@Req() req, @Query('page') page: string, @Query('uploader_user_id') uploaderUserId?: string) {
     const pageNum = parseInt(page, 10) || 1;
-    return this.videoService.getVideosByUser(req.user.id, pageNum);
+    return this.videoService.getVideosByUser(req.user.id, pageNum, uploaderUserId);
   }
 }

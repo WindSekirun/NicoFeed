@@ -20,7 +20,6 @@ model Follower {
   userid                Int
   uploaderUserName      String
   uploaderUserId        String  @unique
-  uploaderUserThumbnail String
   initialSync           Boolean @default(false)
   user                  User    @relation(fields: [userid], references: [id], onDelete: Cascade)
   Video                 Video[]
@@ -34,7 +33,6 @@ model Video {
   videoPubDate    DateTime
   videoThumbnail  String
   uploaderUserId  String
-  requestDateTime DateTime @default(now())
   user            User     @relation(fields: [userid], references: [id], onDelete: Cascade)
   follower        Follower @relation(fields: [uploaderUserId], references: [uploaderUserId], onDelete: Cascade)
 }

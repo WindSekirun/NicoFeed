@@ -44,6 +44,11 @@ export class FollowersController {
     return this.followersService.getFollowers(req.user.id);
   }
 
+  @Get('/recent')
+  getRecentUploadedFollowers(@Req() req) {
+    return this.followersService.getRecentUploadedFollowers(req.user.id);
+  }
+
   @Delete(':id')
   deleteFollower(@Param('id') id: number) {
     return this.followersService.deleteFollower(id);
@@ -114,11 +119,7 @@ export class FollowersController {
           (userElement.querySelector('.UserItem-link') as HTMLAnchorElement)
             ?.href || '';
         const userId = href.match(/\/user\/(\d+)\?/)?.[1] || '';
-        const sliced = userId.slice(0, -4);
-
-        const iconUrl = `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${sliced}/${userId}.jpg`;
-
-        return { userId, nickname, iconUrl };
+        return { userId, nickname };
       });
     });
 

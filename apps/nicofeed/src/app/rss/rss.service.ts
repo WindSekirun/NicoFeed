@@ -39,8 +39,10 @@ export class RssService {
                   videoTitle: item.title,
                   videoLink: getLastPathWithoutQuery(item.link),
                   videoPubDate: new Date(item.pubDate),
-                  videoThumbnail: thumbnail.replace("https://nicovideo.cdn.nimg.jp/thumbnails/", ""),
-                  requestDateTime: new Date(),
+                  videoThumbnail: thumbnail.replace(
+                    'https://nicovideo.cdn.nimg.jp/thumbnails/',
+                    ''
+                  ),
                   uploaderUserId: follower.uploaderUserId,
                 });
               }
@@ -52,10 +54,13 @@ export class RssService {
           }
         }
 
-        if (newVideos.length > 0) {
+        const removeDuplicates = Array.from(
+          new Map(newVideos.map((item) => [item.videoLink, item])).values()
+        );
+
+        if (removeDuplicates.length > 0) {
           await this.prisma.video.createMany({
-            data: newVideos,
-            skipDuplicates: true,
+            data: removeDuplicates,
           });
         }
 
