@@ -56,7 +56,7 @@
     </div>
     <div
       v-if="hasMore"
-      v-intersect="loadMoreVideos"
+      v-intersect="loadMoreVideos(false)"
       class="infinite-scroll-trigger"
     />
     

@@ -27,7 +27,7 @@ export class RssService {
 
             for (const item of feed.items) {
               const existingVideo = await this.prisma.video.findFirst({
-                where: { videoLink: item.link, userid: follower.userid },
+                where: { videoLink: getLastPathWithoutQuery(item.link), userid: follower.userid },
               });
 
               if (!existingVideo) {
