@@ -37,7 +37,10 @@ interface PuppeteerCookieParam extends puppeteer.Cookie {
 @Controller('followers')
 @UseGuards(JwtAuthGuard)
 export class FollowersController {
-  constructor(private followersService: FollowersService, private rssService: RssService) {}
+  constructor(
+    private followersService: FollowersService,
+    private rssService: RssService
+  ) {}
 
   @Get()
   getFollowers(@Req() req) {
@@ -97,7 +100,16 @@ export class FollowersController {
   }
 
   private async fetchDataWithCookies(cookies: PuppeteerCookieParam[]) {
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+      headless: true,
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+      ],
+    });
     const page = await browser.newPage();
     await page.setCookie(...cookies);
     await page.goto('https://www.nicovideo.jp/my/follow', {

@@ -17,7 +17,16 @@ RUN npx prisma generate
 
 FROM docker.io/node:18-alpine3.18 as runner
 
-RUN apk add --no-cache --no-check-certificate dumb-init curl
+RUN apk add --no-cache --no-check-certificate dumb-init curl \
+chromium \
+nss \
+freetype \
+freetype-dev \
+harfbuzz \
+ttf-freefont \
+font-noto-emoji
+
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
 ENV NODE_ENV production
 ENV PORT 3000
 
