@@ -8,14 +8,12 @@
       <v-card @click="() => openVideo(video.videoLink)" class="mt-4">
         <v-row class="d-flex align-center">
           <v-col cols="3">
-            <v-img :src="video.videoThumbnail" class="pa-5 ms-2" />
+            <v-img :src="video.videoThumbnail" class="pa-5" />
           </v-col>
-          <v-col class="me-2 mt-2 mb-2">
-            <span class="text-body-1">{{ video.videoTitle }}</span>
-            <br />
-            <span class="text-body-2">{{ video.follower.uploaderUserName }}</span>
-            <br />
-            <p class="text-caption text-right">
+          <v-col class="mt-2 mb-2" cols="9">
+            <p class="text-body-1 video-title">{{ video.videoTitle }}</p>
+            <p class="text-body-2">{{ video.follower.uploaderUserName }}</p>
+            <p class="text-caption text-right me-2">
               {{ formatRelativeTime(video.videoPubDate) }}
             </p>
           </v-col>
@@ -103,5 +101,15 @@ function shouldDisplayDateHeader(index: number): boolean {
 <style scoped>
 .infinite-scroll-trigger {
   height: 1px;
+}
+
+.video-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: break-spaces;
 }
 </style>

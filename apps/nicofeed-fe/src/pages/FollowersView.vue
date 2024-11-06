@@ -3,7 +3,8 @@
     <v-card>
       <v-card-title>팔로워 목록 가져오기</v-card-title>
       <v-card-text>
-        niconico 의 cookie.txt 파일을 업로드하여 팔로워 목록을 찾아옵니다. 약 1분 소요됩니다.
+        niconico 의 cookie.txt 파일을 업로드하여 팔로워 목록을 찾아옵니다. 약
+        1분 소요됩니다.
         <div class="mt-1"></div>
         <input type="file" @change="onFileChange" accept=".txt" />
       </v-card-text>
@@ -11,7 +12,12 @@
         <v-btn color="info" @click="clickChrome()"> Chrome </v-btn>
         <v-btn color="info" @click="clickFirefox()"> Firefox </v-btn>
         <v-spacer></v-spacer>
-        <v-btn :disabled="!file" @click="uploadFile" color="primary" :loading="loading">
+        <v-btn
+          :disabled="!file"
+          @click="uploadFile"
+          color="primary"
+          :loading="loading"
+        >
           업로드
         </v-btn>
       </v-card-actions>
@@ -28,7 +34,8 @@
           <v-img :src="follower.uploaderUserThumbnail" />
         </v-col>
         <v-col>
-          <span class="text-h6">{{ follower.uploaderUserName }}</span>
+          <p class="text-caption">#{{ follower.uploaderUserId }}</p>
+          <p class="text-h6">{{ follower.uploaderUserName }}</p>
         </v-col>
         <v-col cols="2">
           <v-btn @click="removeFollower" icon variant="flat">

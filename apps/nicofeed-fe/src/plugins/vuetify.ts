@@ -1,7 +1,7 @@
 /**
  * plugins/vuetify.ts
  *
- * Framework documentation: https://vuetifyjs.com`
+ * Framework documentation: https://vuetifyjs.com
  */
 
 // Styles
@@ -18,6 +18,20 @@ import * as directives from 'vuetify/directives'
 export default createVuetify({
   theme: {
     defaultTheme: 'light',
+    themes: {
+      light: {
+        colors: {
+          background: '#eceff4',
+          surface: '#ffffff',
+        }
+      },
+      dark: {
+        colors: {
+          background: '#2e3340',
+          surface: '#3b4252',
+        }
+      }
+    }
   },
   components,
   directives
