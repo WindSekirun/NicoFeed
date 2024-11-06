@@ -68,6 +68,7 @@ import { useRouter } from 'vue-router';
 import axios from '../api/api';
 import { useTheme } from 'vuetify/lib/framework.mjs';
 import { useLocalStorage } from '@vueuse/core';
+import { AxiosError } from 'axios';
 
 const router = useRouter();
 const valid = ref(false);
@@ -101,8 +102,11 @@ const handleRegister = async () => {
     });
     router.push('/login');
   } catch (error) {
-    console.error('Registration error:', error);
-    alert('Registration failed. Try a different username.');
+    console.log(error);
+    if (error instanceof AxiosError) {
+      console.error('Registration error:', error);
+      alert(`Registration failed. ${error.response?.data.message}`);
+    }
   }
 };
 

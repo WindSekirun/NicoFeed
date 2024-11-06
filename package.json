@@ -13,6 +13,7 @@
   "dependencies": {
     "@mdi/font": "7.4.47",
     "@nestjs/common": "^10.0.2",
+    "@nestjs/config": "^3.3.0",
     "@nestjs/core": "^10.0.2",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",

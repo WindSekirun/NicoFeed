@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { RssCronService } from './rss/rss.cron.service';
 import { RssService } from './rss/rss.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -17,6 +18,9 @@ import { RssService } from './rss/rss.service';
     MulterModule.register({
       dest: './uploads', 
     }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    })
   ],
   controllers: [],
   providers: [RssCronService, RssService, PrismaService],

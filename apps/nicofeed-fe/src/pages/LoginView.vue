@@ -39,7 +39,15 @@
               >
                 Login
               </v-btn>
-              <!-- <v-btn @click="navigateToRegister">Register</v-btn> -->
+              <v-btn
+                @click="navigateToRegister"
+                color="secondary"
+                class="mt-3 me-5"
+                block
+                rounded="xl"
+              >
+                Register
+              </v-btn>
             </v-form>
           </v-card-text>
         </v-card>
@@ -54,6 +62,7 @@ import { useRouter } from 'vue-router';
 import axios from '../api/api';
 import { useTheme } from 'vuetify/lib/framework.mjs';
 import { useLocalStorage } from '@vueuse/core';
+import { AxiosError } from 'axios';
 
 const router = useRouter();
 const valid = ref(false);
@@ -76,13 +85,16 @@ const handleLogin = async () => {
     localStorage.setItem('jwt_token', response.data.access_token);
     router.push('/');
   } catch (error) {
-    console.error('Login error:', error);
-    alert('Login failed. Please check your username and password.');
+    console.log(error);
+    if (error instanceof AxiosError) {
+      console.error('Login error:', error);
+      alert(`Login failed. ${error.response?.data.message}`);
+    }
   }
 };
 
 const navigateToRegister = () => {
-  // router.push('/register');
+  router.push('/register');
 };
 
 onMounted(() => {

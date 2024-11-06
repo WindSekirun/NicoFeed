@@ -7,6 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { LocalStrategy } from './local.strategy';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [

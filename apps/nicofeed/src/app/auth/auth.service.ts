@@ -2,10 +2,17 @@ import { BadRequestException, ConflictException, Injectable } from '@nestjs/comm
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
-  constructor(private jwtService: JwtService, private prisma: PrismaService) {}
+  private allowUserRegistration: string
+  private userRegistrationPassId: string
+
+  constructor(private jwtService: JwtService, private prisma: PrismaService, private configService: ConfigService) {
+    this.allowUserRegistration = this.configService.get<string>('ALLOW_USER_REGISTRATION', "false");
+    this.userRegistrationPassId = this.configService.get<string>('USER_REGISTRATION_PASSID');
+  }
 
   async validateUser(username: string, pass: string): Promise<any> {
     const user = await this.prisma.user.findUnique({ where: { username } });
@@ -24,7 +31,12 @@ export class AuthService {
   }
 
   async register(passid: string, username: string, password: string) {
-    if (passid != "992d71d4-9157-4344-bc50-d0a2d8a4d2c4") {
+    console.log(`allow: ${this.allowUserRegistration}, passid: ${this.userRegistrationPassId}`)
+    if (this.allowUserRegistration != "true") {
+      throw new BadRequestException("No User Registration Approved.")
+    }
+
+    if (passid != this.userRegistrationPassId) {
       throw new BadRequestException("Not Acceptable passid")
     }
     const existingUser = await this.prisma.user.findUnique({
