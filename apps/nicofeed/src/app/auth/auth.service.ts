@@ -31,7 +31,6 @@ export class AuthService {
   }
 
   async register(passid: string, username: string, password: string) {
-    console.log(`allow: ${this.allowUserRegistration}, passid: ${this.userRegistrationPassId}`)
     if (this.allowUserRegistration != "true") {
       throw new BadRequestException("No User Registration Approved.")
     }
