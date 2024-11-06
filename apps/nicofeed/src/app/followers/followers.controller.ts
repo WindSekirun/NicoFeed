@@ -10,6 +10,8 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  ExecutionContext,
+  ArgumentsHost,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FollowersService } from './followers.service';
@@ -18,6 +20,7 @@ import { Multer } from 'multer';
 import * as puppeteer from 'puppeteer';
 import * as readline from 'readline';
 import { Readable } from 'stream';
+import { RssService } from '../rss/rss.service';
 
 interface PuppeteerCookieParam extends puppeteer.Cookie {
   name: string;
@@ -34,16 +37,11 @@ interface PuppeteerCookieParam extends puppeteer.Cookie {
 @Controller('followers')
 @UseGuards(JwtAuthGuard)
 export class FollowersController {
-  constructor(private followersService: FollowersService) {}
+  constructor(private followersService: FollowersService, private rssService: RssService) {}
 
   @Get()
   getFollowers(@Req() req) {
     return this.followersService.getFollowers(req.user.id);
-  }
-
-  @Post('/sync')
-  syncFollower(@Req() req, @Body() body) {
-    return this.followersService.syncFollowers(req.user.id, body);
   }
 
   @Delete(':id')
@@ -52,14 +50,17 @@ export class FollowersController {
   }
 
   @Post('/sync/cookies')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
 
     const cookies = await this.parseCookies(file.buffer);
     const data = await this.fetchDataWithCookies(cookies);
+    await this.followersService.syncFollowers(req.user.id, data);
+    await this.rssService.fetchVideos();
     return { data };
   }
 
@@ -109,17 +110,13 @@ export class FollowersController {
         const nickname =
           userElement.querySelector('.UserItem-nickname')?.textContent || '';
 
-        const iconElement = userElement.querySelector(
-          '.UserIcon-image'
-        ) as HTMLElement;
-        const iconUrl = iconElement?.style.backgroundImage
-          ? iconElement.style.backgroundImage.slice(5, -2)
-          : '';
-
         const href =
           (userElement.querySelector('.UserItem-link') as HTMLAnchorElement)
             ?.href || '';
         const userId = href.match(/\/user\/(\d+)\?/)?.[1] || '';
+        const sliced = userId.slice(0, -4);
+
+        const iconUrl = `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${sliced}/${userId}.jpg`;
 
         return { userId, nickname, iconUrl };
       });

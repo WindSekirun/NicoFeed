@@ -1,55 +1,68 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { Cron } from '@nestjs/schedule';
 import Parser from 'rss-parser';
 import axios from 'axios';
 
 @Injectable()
-export class RssService implements OnModuleInit {
+export class RssService {
   private readonly parser = new Parser();
   private readonly thumbnailRegex = /<img[^>]+src="([^">]+)"/;
 
   constructor(private prisma: PrismaService) {}
 
-  async onModuleInit() {
-    if (process.env.NODE_ENV == 'production') {
-      this.fetchVideos();
-    }
-  }
-
-  @Cron('*/10 * * * *')
   async fetchVideos() {
     const followers = await this.prisma.follower.findMany();
 
-    for (const follower of followers) {
-      const url = `https://www.nicovideo.jp/user/${follower.uploaderUserId}/video?rss=2.0`;
-      const response = await axios.get(url);
-      const feed = await this.parser.parseString(response.data);
+    Promise.all(
+      followers.map(async (follower) => {
+        const pageCount = follower.initialSync ? 1 : 10;
+        const newVideos = [];
 
-      for (const item of feed.items) {
-        const existingVideo = await this.prisma.video.findFirst({
-          where: { videoLink: item.link, userid: follower.userid },
-        });
-        const match = item.content.match(this.thumbnailRegex);
-        let thumbnail = '';
-        if (match && match[1]) {
-          thumbnail = match[1];
+        for (let i = 1; i <= pageCount; i++) {
+          try {
+            const url = `https://www.nicovideo.jp/user/${follower.uploaderUserId}/video?rss=2.0&page=${i}`;
+            const response = await axios.get(url);
+            const feed = await this.parser.parseString(response.data);
+
+            for (const item of feed.items) {
+              const existingVideo = await this.prisma.video.findFirst({
+                where: { videoLink: item.link, userid: follower.userid },
+              });
+
+              if (!existingVideo) {
+                const match = item.content.match(this.thumbnailRegex);
+                const thumbnail = match?.[1] || '';
+
+                newVideos.push({
+                  userid: follower.userid,
+                  videoTitle: item.title,
+                  videoLink: item.link,
+                  videoPubDate: new Date(item.pubDate),
+                  videoThumbnail: thumbnail,
+                  requestDateTime: new Date(),
+                  uploaderUserId: follower.uploaderUserId,
+                });
+              }
+            }
+          } catch (error) {
+            console.error(
+              `Error fetching videos for user ${follower.uploaderUserId}: ${error.message}`
+            );
+          }
         }
 
-        if (!existingVideo) {
-          await this.prisma.video.create({
-            data: {
-              userid: follower.userid,
-              videoTitle: item.title,
-              videoLink: item.link,
-              videoPubDate: new Date(item.pubDate),
-              videoThumbnail: thumbnail,
-              requestDateTime: new Date(),
-              uploaderUserId: follower.uploaderUserId,
-            },
+        if (newVideos.length > 0) {
+          await this.prisma.video.createMany({
+            data: newVideos,
+            skipDuplicates: true,
           });
         }
-      }
-    }
+
+        await this.prisma.follower.update({
+          where: { id: follower.id },
+          data: { initialSync: true },
+        });
+      })
+    );
   }
 }

@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';;
 import { VideoModule } from './video/video.module';
-import { RssService } from './rss/rss.service';
 import { FollowersModule } from './followers/followers.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaService } from './prisma/prisma.service';
 import { AuthModule } from './auth/auth.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { RssCronService } from './rss/rss.cron.service';
+import { RssService } from './rss/rss.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { MulterModule } from '@nestjs/platform-express';
     }),
   ],
   controllers: [],
-  providers: [RssService, PrismaService],
+  providers: [RssCronService, RssService, PrismaService],
 })
 export class AppModule {}

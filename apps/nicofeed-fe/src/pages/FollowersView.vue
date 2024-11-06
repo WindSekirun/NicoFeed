@@ -1,23 +1,26 @@
 <template>
   <Navigation>
-    <v-textarea
-      v-model="apiResponse"
-      label="API 응답 결과"
-      append-inner-icon="mdi-help-circle-outline"
-      variant="solo"
-    />
-    <v-btn rounded="xl" block color="blue" @click="refreshFollowers">
-      팔로워 목록 새로고침
-    </v-btn>
+    <v-card>
+      <v-card-title>팔로워 목록 가져오기</v-card-title>
+      <v-card-text>
+        niconico 의 cookie.txt 파일을 업로드하여 팔로워 목록을 찾아옵니다. 약 1분 소요됩니다.
+        <div class="mt-1"></div>
+        <input type="file" @change="onFileChange" accept=".txt" />
+      </v-card-text>
+      <v-card-actions>
+        <v-btn color="info" @click="clickChrome()"> Chrome </v-btn>
+        <v-btn color="info" @click="clickFirefox()"> Firefox </v-btn>
+        <v-spacer></v-spacer>
+        <v-btn :disabled="!file" @click="uploadFile" color="primary" :loading="loading">
+          업로드
+        </v-btn>
+      </v-card-actions>
+    </v-card>
 
     <div class="mt-10" />
 
-    <div v-if="followers">
-      Total {{ followers.length }} followers
-    </div>
-    <div v-else>
-      No Followers to track
-    </div>
+    <div v-if="followers">Total {{ followers.length }} followers</div>
+    <div v-else>No Followers to track</div>
 
     <v-card v-for="follower in followers" :key="follower.id" class="mt-4">
       <v-row class="d-flex align-center">
@@ -28,7 +31,7 @@
           <span class="text-h6">{{ follower.uploaderUserName }}</span>
         </v-col>
         <v-col cols="2">
-          <v-btn icon variant="flat" @click="removeFollower">
+          <v-btn @click="removeFollower" icon variant="flat">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
         </v-col>
@@ -43,14 +46,49 @@ import axios from '../api/api';
 import { onMounted, ref } from 'vue';
 
 const followers = ref([]);
-const apiResponse = useLocalStorage('apiResponse', '');
+const file = ref<File | null>(null);
+const loading = ref(false);
 
-const refreshFollowers = async () => {
-  await axios.post('/followers/sync', {
-    apiResponse: apiResponse.value,
-  });
+function onFileChange(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files[0]) {
+    file.value = target.files[0];
+  }
+}
 
-  await loadList();
+const clickChrome = async () => {
+  window.open(
+    'https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc',
+    '_blank'
+  );
+};
+
+const clickFirefox = async () => {
+  window.open(
+    'https://addons.mozilla.org/en-US/firefox/addon/cookies-txt/',
+    '_blank'
+  );
+};
+
+const uploadFile = async () => {
+  if (!file.value) return;
+
+  const formData = new FormData();
+  formData.append('file', file.value);
+
+  loading.value = true;
+  try {
+    await axios.post('/followers/sync/cookies', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    await loadList();
+  } catch (err) {
+    console.error(`Error fetching videos: ${err}`);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const loadList = async () => {

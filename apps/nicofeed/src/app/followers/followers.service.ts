@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { Follower } from '@prisma/client';
-import { NicoNicoRoot } from '../model/niconico';
 
 @Injectable()
 export class FollowersService {
@@ -16,47 +15,50 @@ export class FollowersService {
     });
   }
 
-  async syncFollowers(userId: number, body): Promise<any> {
-    const response = JSON.parse(body.apiResponse) as NicoNicoRoot;
-    const target = response.data.items.map((element) => ({
-      userid: userId,
-      uploaderUserId: element.id.toString(),
-      uploaderUserName: element.nickname,
-      uploaderUserThumbnail: element.icons.large,
-    }));
-    await this.prisma.follower.createMany({
-      data: target,
-    });
+  async syncFollowers(
+    userId: number,
+    data: { userId: string; nickname: string; iconUrl: string }[]
+  ) {
+    const target = data
+      .filter((element) => element.userId)
+      .map((element) => ({
+        userid: userId,
+        uploaderUserId: element.userId.toString(),
+        uploaderUserName: element.nickname,
+        uploaderUserThumbnail: element.iconUrl,
+      }));
 
-    await this.removeDuplicateFollowers(userId);
-
-    return await this.getFollowers(userId);
-  }
-
-  async removeDuplicateFollowers(userId: number) {
-    const followers = await this.prisma.follower.findMany({
+    const existingFollowers = await this.prisma.follower.findMany({
       where: { userid: userId },
-      orderBy: { id: 'asc' },
     });
 
-    const uniqueFollowers = new Map<string, number>();
-    const duplicateIds: number[] = [];
+    const existingIds = new Set(existingFollowers.map((f) => f.uploaderUserId));
+    const newIds = new Set(target.map((t) => t.uploaderUserId));
 
-    followers.forEach((follower) => {
-      if (uniqueFollowers.has(follower.uploaderUserId)) {
-        duplicateIds.push(follower.id);
-      } else {
-        uniqueFollowers.set(follower.uploaderUserId, follower.id);
-      }
-    });
+    const followersToAdd = target.filter(
+      (t) => !existingIds.has(t.uploaderUserId)
+    );
 
-    if (duplicateIds.length > 0) {
-      await this.prisma.follower.deleteMany({
-        where: { id: { in: duplicateIds } },
+    const followersToRemove = existingFollowers
+      .filter((f) => !newIds.has(f.uploaderUserId))
+      .map((f) => f.uploaderUserId);
+
+    if (followersToAdd.length > 0) {
+      await this.prisma.follower.createMany({
+        data: followersToAdd,
       });
     }
 
-    return `Removed ${duplicateIds.length} duplicate followers for user_id ${userId}`;
+    if (followersToRemove.length > 0) {
+      await this.prisma.follower.deleteMany({
+        where: {
+          userid: userId,
+          uploaderUserId: { in: followersToRemove },
+        },
+      });
+    }
+
+    return await this.getFollowers(userId);
   }
 
   async deleteFollower(id: number): Promise<void> {

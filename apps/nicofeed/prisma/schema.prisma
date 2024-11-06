@@ -19,9 +19,10 @@ model Follower {
   id                    Int     @id @default(autoincrement())
   userid                Int
   uploaderUserName      String
-  uploaderUserId        String @unique
+  uploaderUserId        String  @unique
   uploaderUserThumbnail String
-  user                  User    @relation(fields: [userid], references: [id])
+  initialSync           Boolean @default(false)
+  user                  User    @relation(fields: [userid], references: [id], onDelete: Cascade)
   Video                 Video[]
 }
 
@@ -34,6 +35,6 @@ model Video {
   videoThumbnail  String
   uploaderUserId  String
   requestDateTime DateTime @default(now())
-  user            User     @relation(fields: [userid], references: [id])
-  follower        Follower @relation(fields: [uploaderUserId], references: [uploaderUserId])
+  user            User     @relation(fields: [userid], references: [id], onDelete: Cascade)
+  follower        Follower @relation(fields: [uploaderUserId], references: [uploaderUserId], onDelete: Cascade)
 }
