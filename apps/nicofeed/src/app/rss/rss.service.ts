@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import Parser from 'rss-parser';
 import axios from 'axios';
+import { getLastPathWithoutQuery } from '../utils/url';
 
 @Injectable()
 export class RssService {
@@ -36,9 +37,9 @@ export class RssService {
                 newVideos.push({
                   userid: follower.userid,
                   videoTitle: item.title,
-                  videoLink: item.link,
+                  videoLink: getLastPathWithoutQuery(item.link),
                   videoPubDate: new Date(item.pubDate),
-                  videoThumbnail: thumbnail,
+                  videoThumbnail: thumbnail.replace("https://nicovideo.cdn.nimg.jp/thumbnails/", ""),
                   requestDateTime: new Date(),
                   uploaderUserId: follower.uploaderUserId,
                 });

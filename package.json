@@ -5,7 +5,9 @@
   "scripts": {
     "serve": "nx run-many --targets=serve",
     "container": "nx run-many --targets=container",
-    "prisma:migrate": "npx prisma migrate dev --schema=./apps/nicofeed/prisma/schema.prisma --name=init"
+    "serve:clear": "docker-compose -f local/docker-compose.yml down -v && docker-compose -f local/docker-compose.yml up -d && sleep 5 && npm run prisma:deploy",
+    "prisma:migrate": "npx prisma migrate dev --schema=./apps/nicofeed/prisma/schema.prisma --name=init",
+    "prisma:deploy": "npx prisma db push --schema=./apps/nicofeed/prisma/schema.prisma "
   },
   "private": true,
   "dependencies": {

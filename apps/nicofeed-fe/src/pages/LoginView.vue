@@ -11,6 +11,7 @@
               @submit.prevent="handleLogin"
             >
               <v-text-field
+                class="mt-2"
                 v-model="username"
                 label="Username"
                 variant="solo"
@@ -27,12 +28,14 @@
                 required
                 @click:append="showPassword = !showPassword"
               />
-              <div class="mt-5" />
+              <div class="mt-3" />
               <v-btn
                 type="submit"
                 color="primary"
                 :disabled="!valid"
                 class="me-5"
+                block
+                rounded="xl"
               >
                 Login
               </v-btn>

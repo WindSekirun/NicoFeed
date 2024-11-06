@@ -8,7 +8,7 @@
       <v-card @click="() => openVideo(video.videoLink)" class="mt-4">
         <v-row class="d-flex align-center">
           <v-col cols="3">
-            <v-img :src="video.videoThumbnail" class="pa-5 ms-2" />
+            <v-img :src="`https://nicovideo.cdn.nimg.jp/thumbnails/` + video.videoThumbnail" class="pa-5 ms-2" />
           </v-col>
           <v-col class="mt-2 mb-2" cols="9">
             <p class="text-body-1 video-title me-2">{{ video.videoTitle }}</p>
@@ -60,8 +60,8 @@ async function loadMoreVideos() {
   }
 }
 
-function openVideo(link: string) {
-  const smId = getLastPathWithoutQuery(link);
+function openVideo(smId: string) {
+  const link = `https://www.nicovideo.jp/watch/${smId}`
   const isAndroid = /Android/i.test(navigator.userAgent);
   const isiOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
   if (isAndroid) {
