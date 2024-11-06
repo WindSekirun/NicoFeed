@@ -22,44 +22,41 @@
       </v-slide-item>
     </v-slide-group>
 
-    <div
-      v-for="(video, index) in videos"
-      :key="video.id"
-      class="video-item"
+    <v-infinite-scroll
+      :items="videos"
+      :onLoad="loadMoreVideosWithCallback"
+      :distance="200"
     >
-      <div
-        v-if="shouldDisplayDateHeader(index)"
-        class="font-weight-bold text-h6 mt-5"
-      >
-        {{ formatDate(video.videoPubDate) }}
-      </div>
-      <v-card @click="() => openVideo(video.videoLink)" class="mt-4">
-        <v-row class="d-flex align-center">
-          <v-col cols="3">
-            <v-img
-              :src="
-                `https://nicovideo.cdn.nimg.jp/thumbnails/` +
-                video.videoThumbnail
-              "
-              class="pa-5 ms-2"
-            />
-          </v-col>
-          <v-col class="mt-2 mb-2" cols="9">
-            <p class="text-body-1 video-title me-2">{{ video.videoTitle }}</p>
-            <p class="text-caption">{{ video.follower.uploaderUserName }}</p>
-            <p class="text-overline text-right me-2">
-              {{ formatRelativeTime(video.videoPubDate) }}
-            </p>
-          </v-col>
-        </v-row>
-      </v-card>
-    </div>
-    <div
-      v-if="hasMore"
-      v-intersect="loadMoreVideos(false)"
-      class="infinite-scroll-trigger"
-    />
-    
+      <template v-for="(video, index) in videos" :key="video.id">
+        <div
+          v-if="shouldDisplayDateHeader(index)"
+          class="font-weight-bold text-h6 mt-5"
+        >
+          {{ formatDate(video.videoPubDate) }}
+        </div>
+        <v-card @click="() => openVideo(video.videoLink)" class="mt-4">
+          <v-row class="d-flex align-center">
+            <v-col cols="3">
+              <v-img
+                :src="
+                  `https://nicovideo.cdn.nimg.jp/thumbnails/` +
+                  video.videoThumbnail
+                "
+                class="pa-5 ms-2"
+              />
+            </v-col>
+            <v-col class="mt-2 mb-2" cols="9">
+              <p class="text-body-1 video-title me-2">{{ video.videoTitle }}</p>
+              <p class="text-caption">{{ video.follower.uploaderUserName }}</p>
+              <p class="text-overline text-right me-2">
+                {{ formatRelativeTime(video.videoPubDate) }}
+              </p>
+            </v-col>
+          </v-row>
+        </v-card>
+      </template>
+    </v-infinite-scroll>
+
     <div v-if="videos.length == 0" class="d-flex align-center justify-center">
       <span class="text-body-1">팔로워 목록을 통해 팔로워를 추가해주세요.</span>
     </div>
@@ -95,14 +92,21 @@ const noneFollower: Follower = {
   uploaderUserId: '',
   userid: -999,
   initialSync: false,
-}
+};
+
+type DoneCallback = (result: string) => void;
 
 const changeUser = async (follower: Follower) => {
-  if (selectedFollower.value?.id == follower.id || follower.id == noneFollower.id) {
+  if (
+    selectedFollower.value?.id == follower.id ||
+    follower.id == noneFollower.id
+  ) {
     selectedFollower.value = undefined;
   } else {
     selectedFollower.value = follower;
   }
+  hasMore.value = true;
+
   await loadMoreVideos(true);
 };
 
@@ -130,6 +134,11 @@ const loadMoreVideos = async (clear: boolean = false) => {
       isLoading.value = false;
     }, 250);
   }
+};
+
+const loadMoreVideosWithCallback = async ({ done }: { done: DoneCallback }) => {
+  await loadMoreVideos(false);
+  done('ok');
 };
 
 const openVideo = async (smId: string) => {
@@ -189,11 +198,7 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped>
-.infinite-scroll-trigger {
-  height: 1px;
-}
-
+<style>
 .video-title {
   display: -webkit-box;
   -webkit-line-clamp: 2;
