@@ -1,7 +1,7 @@
 <template>
   <Navigation>
-    <v-slide-group show-arrows class="ms-n6 me-n6 mt-2">
-      <v-slide-item v-for="follower in followers" :key="follower.id">
+    <v-slide-group show-arrows class="mt-2">
+      <v-slide-group-item v-for="follower in followers" :key="follower.id">
         <v-card
           class="pa-2"
           max-width="60"
@@ -19,7 +19,7 @@
             <v-icon>mdi-selection-ellipse-remove</v-icon>
           </v-avatar>
         </v-card>
-      </v-slide-item>
+      </v-slide-group-item>
     </v-slide-group>
 
     <v-infinite-scroll
