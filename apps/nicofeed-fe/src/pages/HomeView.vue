@@ -47,7 +47,14 @@
             </v-col>
             <v-col class="mt-2 mb-2" cols="9">
               <p class="text-body-1 video-title me-2">{{ video.videoTitle }}</p>
-              <p class="text-caption">{{ video.follower.uploaderUserName }}</p>
+              <div class="mt-1">
+                <v-avatar size="18">
+                  <v-img :src="getUploaderThumbnail(video.follower)" />
+                </v-avatar>
+                <span class="text-caption ms-2">
+                  {{ video.follower.uploaderUserName }}
+                </span>
+              </div>
               <p class="text-overline text-right me-2">
                 {{ formatRelativeTime(video.videoPubDate) }}
               </p>
