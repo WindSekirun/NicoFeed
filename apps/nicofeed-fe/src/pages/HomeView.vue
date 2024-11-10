@@ -36,28 +36,29 @@
         </div>
         <v-card @click="() => openVideo(video.videoLink)" class="mt-4">
           <v-row class="d-flex align-center">
-            <v-col cols="3">
+            <v-col cols="4">
               <v-img
                 :src="
                   `https://nicovideo.cdn.nimg.jp/thumbnails/` +
                   video.videoThumbnail
                 "
+                width="100%"
                 class="pa-5 ms-2"
               />
             </v-col>
-            <v-col class="mt-2 mb-2" cols="9">
+            <v-col class="mt-2 mb-2" cols="8">
               <p class="text-body-1 video-title me-2">{{ video.videoTitle }}</p>
-              <div class="mt-1">
+              <div class="d-flex align-center mt-2 me-2">
                 <v-avatar size="18">
                   <v-img :src="getUploaderThumbnail(video.follower)" />
                 </v-avatar>
-                <span class="text-caption ms-2">
+                <span class="text-caption ms-1">
                   {{ video.follower.uploaderUserName }}
                 </span>
+                <span class="text-caption ms-auto">
+                  {{ formatRelativeTime(video.videoPubDate) }}
+                </span>
               </div>
-              <p class="text-overline text-right me-2">
-                {{ formatRelativeTime(video.videoPubDate) }}
-              </p>
             </v-col>
           </v-row>
         </v-card>
@@ -208,8 +209,8 @@ onMounted(async () => {
 <style>
 .video-title {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
