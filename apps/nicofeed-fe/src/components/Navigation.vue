@@ -2,7 +2,7 @@
   <v-container fluid>
     <v-app-bar :elevation="2">
       <v-app-bar-title>
-        <p class="text-body-1 pa-0">{{ router.currentRoute.value.meta.displayName }}</p>
+        <p class="text-body-1 pa-0">{{ title }}</p>
         <p class="text-caption pa-0">NicoFeed - {{ version }}</p>
       </v-app-bar-title>
 
@@ -21,7 +21,7 @@
     </v-main>
     <v-bottom-navigation
       v-model="currentTab"
-      color="pink"
+      :color="isDark ? '#8fbcbb' : '#5e81ac'"
       grow
       app
       @input="navigate"
@@ -44,11 +44,25 @@ import { useLocalStorage } from '@vueuse/core';
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useTheme } from 'vuetify/lib/framework.mjs';
+import { Follower } from '../model/Followers';
+
+const props = defineProps<{
+  follower?: Follower;
+}>();
 
 const router = useRouter();
 const currentTab = ref(router.currentRoute.value.name);
 const theme = useTheme();
 const isDark = useLocalStorage('theme', theme.global.name.value === 'dark');
+
+const title = computed(() => {
+  const base = router.currentRoute.value.meta.displayName;
+  if (props.follower) {
+    return `${props.follower.uploaderUserName} ${base}`;
+  } else {
+    return base;
+  }
+})
 
 const navigate = (name: string) => {
   if (name && name !== currentTab.value) {

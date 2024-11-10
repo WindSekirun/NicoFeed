@@ -1,5 +1,5 @@
 <template>
-  <Navigation>
+  <Navigation :follower="selectedFollower">
     <v-slide-group show-arrows class="mt-2">
       <v-slide-group-item v-for="follower in followers" :key="follower.id">
         <v-card
@@ -175,7 +175,7 @@ const openVideo = async (smId: string) => {
 };
 
 const formatDate = (date: string) => {
-  return dayjs(date).format('YYYY-MM-DD');
+  return dayjs(date).format('YYYY. MM. DD');
 };
 
 const formatRelativeTime = (date: string) => {
@@ -209,11 +209,12 @@ onMounted(async () => {
 <style>
 .video-title {
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: break-spaces;
+  min-height: 2.5em;
 }
 </style>
