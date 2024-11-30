@@ -1,19 +1,27 @@
 <template>
   <Navigation>
     <v-card>
-      <v-card-title>팔로워 목록 가져오기</v-card-title>
-      <v-card-text>
-        niconico 의 cookie.txt 파일을 업로드하여 팔로워 목록을 찾아옵니다. 약
-        1분 소요됩니다.
-        <div class="mt-4"></div>
-        <input type="file" @change="onFileChange" accept=".txt" />
-      </v-card-text>
-      <v-card-actions>
+      <v-card-title @click="toggleParentCollapse">
+        팔로워 목록 가져오기
+        <v-icon>{{ parentCollapsed ? 'mdi-chevron-down' : 'mdi-chevron-up' }}</v-icon>
+      </v-card-title>
+      <v-expand-transition>
+        <v-card-text v-show="!parentCollapsed">
+          niconico 의 cookie.txt 파일을 업로드하여 팔로워 목록을 찾아옵니다. 약
+          1분 소요됩니다.
+          <div class="mt-4"></div>
+          <input type="file" @change="onFileChange" accept=".txt" />
+          <div class="mt-2"></div>
+          또는 아래 COOKIES 버튼으로 쿠키 정보를 입력해주세요.
+        </v-card-text>
+      </v-expand-transition>
+      <v-card-actions v-show="!parentCollapsed">
         <v-btn color="info" @click="clickChrome()"> Chrome </v-btn>
         <v-btn color="info" @click="clickFirefox()"> Firefox </v-btn>
-        <v-spacer></v-spacer>
+        <v-btn color="info" @click="dialog = true">Cookies</v-btn>
+        <v-spacer />
         <v-btn
-          :disabled="!file"
+          :disabled="!file && !cookies"
           @click="uploadFile"
           color="primary"
           :loading="loading"
@@ -44,6 +52,19 @@
         </v-col>
       </v-row>
     </v-card>
+
+    <v-dialog v-model="dialog" width="800px">
+      <v-card>
+        <v-card-title class="headline">Enter Cookies</v-card-title>
+        <v-card-text>
+          <v-textarea label="cookies.txt contents" v-model="cookies"></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer/>
+          <v-btn color="primary" @click="dialog = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </Navigation>
 </template>
 
@@ -51,10 +72,18 @@
 import axios from '../api/api';
 import { onMounted, ref } from 'vue';
 import { Follower } from '../model/Followers';
+import { useLocalStorage } from '@vueuse/core';
 
 const followers = ref<Follower[]>([]);
 const file = ref<File | null>(null);
 const loading = ref(false);
+const dialog = ref(false);
+const cookies = useLocalStorage('cookies_text', '');
+const parentCollapsed = useLocalStorage('follower_load_collapsed', true);
+
+const toggleParentCollapse = () => {
+  parentCollapsed.value = !parentCollapsed.value;
+};
 
 function onFileChange(event: Event) {
   const target = event.target as HTMLInputElement;
@@ -83,18 +112,20 @@ const clickFirefox = async () => {
 };
 
 const uploadFile = async () => {
-  if (!file.value) return;
-
-  const formData = new FormData();
-  formData.append('file', file.value);
-
   loading.value = true;
   try {
-    await axios.post('/followers/sync/cookies', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    if (file.value) {
+      const formData = new FormData();
+      formData.append('file', file.value);
+
+      await axios.post('/followers/sync/cookies', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    } else if (cookies.value) {
+      await axios.post('/followers/sync/cookies/string', { cookies: cookies.value });
+    }
     await loadList();
   } catch (err) {
     console.error(`Error fetching videos: ${err}`);

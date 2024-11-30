@@ -57,12 +57,27 @@ export class FollowersController {
   @Post('/sync/cookies')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req) {
+  async fetchFollowers(@UploadedFile() file: Express.Multer.File, @Req() req) {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
 
     const cookies = await this.parseCookies(file.buffer);
+    const data = await this.fetchDataWithCookies(cookies);
+    await this.followersService.syncFollowers(req.user.id, data);
+    await this.rssService.fetchVideos();
+    return { data };
+  }
+
+  @Post('/sync/cookies/string')
+  @UseGuards(JwtAuthGuard)
+  async fetchFollowersWithString(@Req() req) {
+    const cookiesString = req.body.cookies;
+    if (!cookiesString) {
+      throw new BadRequestException('No cookies string provided');
+    }
+
+    const cookies = await this.parseCookies(Buffer.from(cookiesString));
     const data = await this.fetchDataWithCookies(cookies);
     await this.followersService.syncFollowers(req.user.id, data);
     await this.rssService.fetchVideos();
