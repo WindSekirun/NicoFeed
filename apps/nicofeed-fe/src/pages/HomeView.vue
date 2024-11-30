@@ -34,14 +34,17 @@
         >
           {{ formatDate(video.videoPubDate) }}
         </div>
-        <v-card @click="() => openVideo(video.videoLink)" class="mt-4">
+        <v-card
+          @click="handleClick(video)"
+          @mousedown="startLongClick(video)"
+          @mouseup="clearLongClick"
+          @mouseleave="clearLongClick"
+          class="mt-4"
+        >
           <v-row class="d-flex align-center">
             <v-col cols="4">
               <v-img
-                :src="
-                  `https://nicovideo.cdn.nimg.jp/thumbnails/` +
-                  video.videoThumbnail
-                "
+                :src="getVideoThumbnail(video.videoThumbnail)"
                 width="100%"
                 class="pa-5 ms-2"
               />
@@ -68,6 +71,38 @@
     <div v-if="videos.length == 0" class="d-flex align-center justify-center">
       <span class="text-body-1">팔로워 목록을 통해 팔로워를 추가해주세요.</span>
     </div>
+
+    <v-dialog v-model="dialog" width="500">
+      <v-card>
+        <v-card-title class="headline">Video Details</v-card-title>
+        <v-card-text>
+          <v-img
+            :src="getVideoThumbnail(selectedVideo!.videoThumbnail)"
+            width="100%"
+          />
+          <p class="text-body-1 mt-2">
+            {{ selectedVideo!.videoTitle }}
+          </p>
+          <div class="d-flex align-center mt-2">
+            <v-avatar size="18">
+              <v-img :src="getUploaderThumbnail(selectedVideo!.follower)" />
+            </v-avatar>
+            <span class="text-caption ms-1">
+              {{ selectedVideo!.follower.uploaderUserName }}
+            </span>
+          </div>
+          <p class="text-body-2 mt-2">
+            {{ videoDescription }}
+          </p>
+          <v-btn color="info" @click="selectFollower" block class="mt-2">
+            Filter User Videos
+          </v-btn>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" @click="dialog = false">Close</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </Navigation>
 </template>
 
@@ -93,6 +128,10 @@ const isLoading = ref(false);
 const followers = ref<Follower[]>([]);
 const selectedFollower = ref<Follower | undefined>(undefined);
 let page = 1;
+const dialog = ref(false);
+const selectedVideo = ref<Video | null>(null);
+let longClickTimeout: number | null = null;
+let isLongClick = false;
 
 const noneFollower: Follower = {
   id: -999,
@@ -101,6 +140,8 @@ const noneFollower: Follower = {
   userid: -999,
   initialSync: false,
 };
+
+const videoDescription = ref<string>('');
 
 type DoneCallback = (result: string) => void;
 
@@ -196,6 +237,45 @@ const shouldDisplayDateHeader = (index: number) => {
 const getUploaderThumbnail = (item: Follower) => {
   const sliced = item.uploaderUserId.slice(0, -4);
   return `https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/${sliced}/${item.uploaderUserId}.jpg`;
+};
+
+const getVideoThumbnail = (thumbnail: string) => {
+  return `https://nicovideo.cdn.nimg.jp/thumbnails/${thumbnail}.L`;
+};
+
+const fetchVideoDescription = async (videoLink: string) => {
+  videoDescription.value = (await axios.get(`/videos/description/${videoLink}`)).data.description;
+};
+
+const startLongClick = (video: Video) => {
+  isLongClick = false;
+  longClickTimeout = window.setTimeout(async () => {
+    isLongClick = true;
+    selectedVideo.value = video;
+    await fetchVideoDescription(video.videoLink);
+    dialog.value = true;
+  }, 250);
+};
+
+const clearLongClick = () => {
+  if (longClickTimeout) {
+    clearTimeout(longClickTimeout);
+    longClickTimeout = null;
+  }
+};
+
+const handleClick = (video: Video) => {
+  if (!isLongClick) {
+    openVideo(video.videoLink);
+  }
+};
+
+const selectFollower = () => {
+  if (selectedVideo.value) {
+    selectedFollower.value = selectedVideo.value.follower;
+    dialog.value = false;
+    loadMoreVideos(true);
+  }
 };
 
 onMounted(async () => {
