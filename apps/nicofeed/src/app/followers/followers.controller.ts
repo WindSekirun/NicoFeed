@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { FollowersService } from './followers.service';
@@ -50,7 +51,7 @@ export class FollowersController {
   }
 
   @Delete(':id')
-  deleteFollower(@Param('id') id: number) {
+  deleteFollower(@Param('id', ParseIntPipe) id: number) {
     return this.followersService.deleteFollower(id);
   }
 

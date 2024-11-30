@@ -46,7 +46,7 @@
           <p class="text-h6">{{ follower.uploaderUserName }}</p>
         </v-col>
         <v-col cols="2">
-          <v-btn @click="removeFollower" icon variant="flat">
+          <v-btn @click="removeFollower(follower.id)" icon variant="flat">
             <v-icon>mdi-delete</v-icon>
           </v-btn>
         </v-col>
