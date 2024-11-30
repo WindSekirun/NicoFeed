@@ -3,7 +3,7 @@
     <v-slide-group show-arrows class="mt-2">
       <v-slide-group-item v-for="follower in followers" :key="follower.id">
         <v-card
-          class="pa-2"
+          class="pa-1"
           max-width="60"
           elevation="0"
           align="center"
@@ -42,14 +42,13 @@
           class="mt-4"
         >
           <v-row class="d-flex align-center">
-            <v-col cols="4">
+            <v-col cols="5">
               <v-img
                 :src="getVideoThumbnail(video.videoThumbnail)"
                 width="100%"
-                class="pa-5 ms-2"
               />
             </v-col>
-            <v-col class="mt-2 mb-2" cols="8">
+            <v-col class="mt-2 mb-2" cols="7">
               <p class="text-body-1 video-title me-2">{{ video.videoTitle }}</p>
               <div class="d-flex align-center mt-2 me-2">
                 <v-avatar size="18">
@@ -99,7 +98,7 @@
           </v-btn>
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" @click="dialog = false">Close</v-btn>
+          <v-btn color="primary" @click="dialog = false">닫기</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -216,7 +215,7 @@ const openVideo = async (smId: string) => {
 };
 
 const formatDate = (date: string) => {
-  return dayjs(date).format('YYYY. MM. DD');
+  return dayjs(date).format('YYYY. MM. DD.');
 };
 
 const formatRelativeTime = (date: string) => {
@@ -289,8 +288,8 @@ onMounted(async () => {
 <style>
 .video-title {
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
